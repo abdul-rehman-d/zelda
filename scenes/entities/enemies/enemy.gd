@@ -7,7 +7,7 @@ extends CharacterBody3D
 @onready var move_state_machine = $AnimationTree.get("parameters/MoveStateMachine/playback")
 
 @export var walk_speed: float = 3.0
-@onready var speed = walk_speed
+var speed = walk_speed
 @export var notice_radius: float = 30.0
 @export var attack_radius: float = 3.0
 
