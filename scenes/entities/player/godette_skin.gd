@@ -3,7 +3,9 @@ extends Node3D
 @onready var move_state_machine = $AnimationTree.get("parameters/MoveStateMachine/playback")
 @onready var attack_state_machine = $AnimationTree.get("parameters/AttackStateMachine/playback")
 @onready var extra_animation = $AnimationTree.get_tree_root().get_node("ExtraAnimation")
+@onready var face_material: StandardMaterial3D = $Rig/Skeleton3D/Godette_Head.get_surface_override_material(0)
 @onready var second_attack_timer: Timer = $SecondAttackTimer
+@onready var blink_timer: Timer = $BlinkTimer
 
 @onready var sword: Node3D = %Sword
 @onready var wand: Node3D = %Wand
@@ -17,6 +19,10 @@ var squash_and_strech := 1.0:
 
 const HIT_ANIMATION = "Hit_A"
 const SPELL_ANIMATION = "Spellcast_Shoot"
+const FACES = {
+	'default': Vector3(0,0,0),
+	'blink': Vector3(0,0.5,0),
+}
 
 func set_move_state(state: String) -> void:
 	move_state_machine.travel(state)
@@ -45,9 +51,21 @@ func hit() -> void:
 	is_attacking = false
 
 
+func change_expression(expression) -> void:
+	face_material.uv1_offset = FACES[expression]
+
+
 func _defend_change(value: float) -> void:
 	$AnimationTree.set("parameters/ShieldBlend/blend_amount", value)
 
 
 func _attack_toggle(value: bool):
 	is_attacking = value
+
+
+func _on_blink_timer_timeout() -> void:
+	change_expression("blink")
+	await get_tree().create_timer(0.2).timeout
+	change_expression("default")
+	blink_timer.wait_time = randf_range(1.5, 3.0)
+	blink_timer.start()
