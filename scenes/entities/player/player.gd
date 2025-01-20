@@ -16,10 +16,13 @@ extends CharacterBody3D
 @onready var camera: Camera3D = $CameraController/Camera3D
 @onready var skin: Node3D = $GodetteSkin
 
+signal cast_spell(type: String, pos: Vector3, direction: Vector2, size: float)
+
 enum WEAPON {SWORD, WAND}
 var selected_weapon: WEAPON = WEAPON.SWORD
 
 var movement_input := Vector2.ZERO
+var last_movement_input := Vector2(0,1)
 var is_running := false
 var speed_modifier := 1.0
 var is_defending := false:
@@ -32,6 +35,12 @@ var is_defending := false:
 			is_defending = value
 
 
+func _ready() -> void:
+	skin.sword.show()
+	skin.wand.hide()
+	do_squash_and_stretch(1.1, 0.15)
+
+
 func _physics_process(delta: float) -> void:
 	handle_movement(delta)
 	handle_jump(delta)
@@ -39,7 +48,7 @@ func _physics_process(delta: float) -> void:
 	handle_weapon_stuff()
 	
 	if Input.is_action_just_pressed("ui_accept"):
-		handle_hit()
+		hit()
 	
 	move_and_slide()
 
@@ -94,6 +103,8 @@ func handle_movement(delta: float) -> void:
 		vel_2d = vel_2d.move_toward(Vector2.ZERO, base_speed * 4.0 * delta)
 		skin.set_move_state("Idle")
 
+	if movement_input:
+		last_movement_input = movement_input.normalized()
 	velocity.x = vel_2d.x
 	velocity.z = vel_2d.y
 
@@ -109,10 +120,13 @@ func handle_jump(delta: float) -> void:
 	velocity.y -= (get_gravity_local() * delta)
 
 
-func handle_hit() -> void:
+func hit() -> void:
 	skin.hit()
 	stop_movement(0.3, 0.8)
 
+
+func shoot_fireball(pos: Vector3) -> void:
+	cast_spell.emit("fireball", pos, last_movement_input, 1.0)
 
 func do_squash_and_stretch(value: float, duration: float = 0.1) -> void:
 	var tween = create_tween()

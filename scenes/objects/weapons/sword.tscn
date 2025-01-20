@@ -1,0 +1,22 @@
+[gd_scene load_steps=5 format=3 uid="uid://doyag4kkperi1"]
+
+[ext_resource type="Script" path="res://scenes/objects/weapons/sword.gd" id="1_axipw"]
+[ext_resource type="PackedScene" uid="uid://cp757r6txb0j6" path="res://graphics/weapons/sword_1handed.gltf" id="1_hx63p"]
+[ext_resource type="Texture2D" uid="uid://cbf5176yt1e2d" path="res://graphics/weapons/barbarian_texture.png" id="2_kxk10"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_825b7"]
+albedo_texture = ExtResource("2_kxk10")
+
+[node name="Sword" type="Node3D"]
+script = ExtResource("1_axipw")
+
+[node name="sword" parent="." instance=ExtResource("1_hx63p")]
+
+[node name="sword_1handed" parent="sword" index="0"]
+surface_material_override/0 = SubResource("StandardMaterial3D_825b7")
+
+[node name="RayCast3D" type="RayCast3D" parent="."]
+target_position = Vector3(0, 1.41, 0)
+collision_mask = 4
+
+[editable path="sword"]

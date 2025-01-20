@@ -14,6 +14,16 @@ var speed = walk_speed
 var rng = RandomNumberGenerator.new()
 var speed_modifier = 1.0
 
+var last_movement := Vector2(0,1)
+
+@onready var default_scale = get_node('Skin').scale
+
+var squash_and_strech := 1.0:
+	set(value):
+		squash_and_strech = value
+		var negative = 1.0 + (1.0 - squash_and_strech)
+		skin.scale = Vector3(negative, squash_and_strech, negative) * default_scale
+
 func move_to_player(delta: float) -> void:
 	var target_pos = (player.position - position).normalized()
 	
@@ -24,6 +34,8 @@ func move_to_player(delta: float) -> void:
 		var move_direction = Vector2(target_pos.x, target_pos.z)
 		var target_angle = -move_direction.angle() + PI/2
 		rotation.y = rotate_toward(rotation.y, target_angle, delta * 6.0)
+		
+		last_movement = move_direction.normalized()
 		
 		if dis <= attack_radius:
 			velocity = Vector3.ZERO
@@ -45,3 +57,15 @@ func stop_movement(start_duration: float, end_duration: float) -> void:
 	var tween = create_tween()
 	tween.tween_property(self, "speed_modifier", 0.0, start_duration)
 	tween.tween_property(self, "speed_modifier", 1.0, end_duration)
+
+
+func hit() -> void:
+	if not $Timers/InvulTimer.time_left:
+		do_squash_and_stretch(1.15, 0.15)
+		$Timers/InvulTimer.start()
+
+
+func do_squash_and_stretch(value: float, duration: float = 0.1) -> void:
+	var tween = create_tween()
+	tween.tween_property(self, "squash_and_strech", value, duration)
+	tween.tween_property(self, "squash_and_strech", 1.0, duration * 1.8).set_ease(Tween.EASE_OUT)

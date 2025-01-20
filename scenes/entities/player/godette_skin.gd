@@ -69,3 +69,12 @@ func _on_blink_timer_timeout() -> void:
 	change_expression("default")
 	blink_timer.wait_time = randf_range(1.5, 3.0)
 	blink_timer.start()
+
+
+func can_damage(value: bool) -> void:
+	sword.can_damage = value
+
+
+func _shoot_fireball() -> void:
+	var spawn_pos = %FireballSpawn.global_position
+	get_parent().shoot_fireball(spawn_pos)
